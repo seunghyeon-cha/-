@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build outputs
+frontend/out/
+frontend/.next/
+backend/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+backend/logs/
+
+# Uploads
+backend/uploads/
+
+# Database
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Postgres.app (macOS application)
+Postgres.app/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Test coverage
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/
+.next/cache/
+
+# Claude Code settings (keep local settings only)
+.claude/settings.local.json
