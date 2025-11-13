@@ -2,7 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',  // GitHub Pages를 위한 정적 내보내기
-  // basePath와 assetPrefix 제거 - 루트 경로로 배포
+  basePath: '/-',
+  assetPrefix: '/-',
+  trailingSlash: true,
   images: {
     unoptimized: true, // 정적 내보내기 시 필수
     remotePatterns: [
