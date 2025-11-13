@@ -1,0 +1,21 @@
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /mypage/
+Disallow: /_next/
+Disallow: /private/
+
+User-Agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /mypage/
+
+User-Agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /mypage/
+
+Sitemap: https://yerimtour.com/sitemap.xml
