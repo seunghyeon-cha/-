@@ -1,11 +1,11 @@
-import { test as base } from '@playwright/test';
+import { test as base, Page } from '@playwright/test';
 import { AuthHelper } from '../helpers/auth.helper';
 import { NavigationHelper } from '../helpers/navigation.helper';
 
 type TestFixtures = {
   authHelper: AuthHelper;
   navHelper: NavigationHelper;
-  authenticatedPage: any;
+  authenticatedPage: Page;
 };
 
 export const test = base.extend<TestFixtures>({
