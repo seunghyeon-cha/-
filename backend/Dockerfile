@@ -2,15 +2,21 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies
+# Install build dependencies for better-sqlite3
+RUN apk add --no-cache python3 make g++
+
+# Install ALL dependencies (including devDependencies for build)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build TypeScript
 RUN npm run build
+
+# Remove devDependencies after build
+RUN npm prune --production
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data
@@ -23,4 +29,4 @@ ENV NODE_ENV=production
 ENV PORT=4000
 
 # Start the server
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.js"]
