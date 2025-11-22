@@ -14,7 +14,11 @@ const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://-smartrip-cha-forntend.vercel.app'
+  ],
   credentials: true
 }));
 app.use(express.json());
