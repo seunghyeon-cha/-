@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import { getVerificationStatus, createVerification } from '@/lib/api/business';
 import { toast } from '@/stores/toastStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -26,7 +27,7 @@ type VerificationFormData = z.infer<typeof verificationSchema>;
 
 export default function BusinessVerifyPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  useAuthStore(); // user 변수가 실제로 사용되지 않으므로 제거
   const [verification, setVerification] = useState<BusinessVerification | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +49,7 @@ export default function BusinessVerifyPage() {
       setIsLoading(true);
       const data = await getVerificationStatus();
       setVerification(data);
-    } catch (error: any) {
+    } catch {
       // 인증 내역이 없으면 에러가 발생하므로 무시
       console.log('인증 내역 없음');
     } finally {
@@ -77,8 +78,12 @@ export default function BusinessVerifyPage() {
       await createVerification(data);
       toast.success('사업자 인증 신청이 완료되었습니다');
       await fetchVerificationStatus();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || '인증 신청에 실패했습니다');
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '인증 신청에 실패했습니다');
+      } else {
+        toast.error('인증 신청에 실패했습니다');
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PlaceCard from '@/components/places/PlaceCard';
-import { getPlaces } from '@/lib/api/places';
+import { getPlaces, Place } from '@/lib/api/places';
 
 export default function HomePage() {
   const router = useRouter();
-  const [popularPlaces, setPopularPlaces] = useState<any[]>([]);
-  const [touristPlaces, setTouristPlaces] = useState<any[]>([]);
-  const [restaurantPlaces, setRestaurantPlaces] = useState<any[]>([]);
-  const [accommodationPlaces, setAccommodationPlaces] = useState<any[]>([]);
+  const [popularPlaces, setPopularPlaces] = useState<Place[]>([]);
+  const [touristPlaces, setTouristPlaces] = useState<Place[]>([]);
+  const [restaurantPlaces, setRestaurantPlaces] = useState<Place[]>([]);
+  const [accommodationPlaces, setAccommodationPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // 슬라이더 상태
@@ -389,7 +389,7 @@ export default function HomePage() {
       <section className="py-24 px-6 bg-gradient-to-br from-primary-500 to-primary-600 text-white text-center">
         <h2 className="text-4xl font-bold mb-4">사업자이신가요?</h2>
         <p className="text-xl mb-10 opacity-90">
-          예림투어에 장소를 등록하세요
+          Smartrip에 장소를 등록하세요
         </p>
         <button
           onClick={() => router.push('/business/register')}

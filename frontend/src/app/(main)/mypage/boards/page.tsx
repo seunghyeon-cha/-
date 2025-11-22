@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getMyBoards } from '@/lib/api/user';
@@ -21,11 +21,7 @@ export default function MyBoardsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadBoards();
-  }, [page, sortBy]);
-
-  const loadBoards = async () => {
+  const loadBoards = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getMyBoards({
@@ -41,7 +37,11 @@ export default function MyBoardsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, sortBy]);
+
+  useEffect(() => {
+    loadBoards();
+  }, [loadBoards]);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`"${title}" 게시글을 삭제하시겠습니까?`)) {

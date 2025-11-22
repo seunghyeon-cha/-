@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getBoards } from '@/lib/api/boards';
 import {
@@ -14,7 +14,6 @@ type TabCategory = 'ALL' | BoardCategory;
 
 export default function BoardsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [activeTab, setActiveTab] = useState<TabCategory>('ALL');
   const [sortOption, setSortOption] = useState<'latest' | 'popular' | 'views'>(
@@ -31,7 +30,7 @@ export default function BoardsPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // 게시글 목록 조회
-  const fetchBoards = async (
+  const fetchBoards = useCallback(async (
     category?: BoardCategory,
     sort?: 'latest' | 'popular' | 'views',
     page: number = 1,
@@ -53,7 +52,7 @@ export default function BoardsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sortOption]);
 
   // 탭 변경 시
   const handleTabChange = (tab: TabCategory) => {
@@ -97,7 +96,7 @@ export default function BoardsPage() {
   // 초기 로드
   useEffect(() => {
     fetchBoards();
-  }, []);
+  }, [fetchBoards]);
 
   const tabs: { key: TabCategory; label: string }[] = [
     { key: 'ALL', label: '전체' },

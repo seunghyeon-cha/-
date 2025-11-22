@@ -5,15 +5,16 @@ import Footer from '@/components/layout/Footer';
 import ToastContainer from '@/components/common/Toast';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
   title: {
-    default: '예림투어 - 국내 여행의 모든 것',
-    template: '%s | 예림투어',
+    default: 'Smartrip - 국내 여행의 모든 것',
+    template: '%s | Smartrip',
   },
-  description: '예림투어에서 국내 여행 시 필요한 관광지, 맛집, 숙소 정보를 찾고 여행 경험을 공유하세요',
-  keywords: ['국내여행', '관광지', '맛집', '숙소', '여행일정', '여행커뮤니티', '국내여행추천', '여행지', '예림투어'],
-  authors: [{ name: '예림투어' }],
-  creator: '예림투어',
-  publisher: '예림투어',
+  description: 'Smartrip에서 국내 여행 시 필요한 관광지, 맛집, 숙소 정보를 찾고 여행 경험을 공유하세요',
+  keywords: ['국내여행', '관광지', '맛집', '숙소', '여행일정', '여행커뮤니티', '국내여행추천', '여행지', 'Smartrip'],
+  authors: [{ name: 'Smartrip' }],
+  creator: 'Smartrip',
+  publisher: 'Smartrip',
   robots: {
     index: true,
     follow: true,
@@ -28,25 +29,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: 'https://yerimtour.com',
-    siteName: '예림투어',
-    title: '예림투어 - 국내 여행의 모든 것',
+    url: 'https://smartrip.com',
+    siteName: 'Smartrip',
+    title: 'Smartrip - 국내 여행의 모든 것',
     description: '국내 여행 정보, 관광지, 맛집, 숙소를 한눈에. 여행 일정을 만들고 경험을 공유하세요.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: '예림투어',
+        alt: 'Smartrip',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '예림투어 - 국내 여행의 모든 것',
+    title: 'Smartrip - 국내 여행의 모든 것',
     description: '국내 여행 정보, 관광지, 맛집, 숙소를 한눈에',
     images: ['/og-image.jpg'],
-    creator: '@yerimtour',
+    creator: '@smartrip',
   },
   verification: {
     google: 'google-site-verification-code',
@@ -65,6 +66,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <script
+          async
           type="text/javascript"
           src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`}
         ></script>

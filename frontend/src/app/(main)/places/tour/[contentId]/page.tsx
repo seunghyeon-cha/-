@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import KakaoMap from '@/components/map/KakaoMap';
@@ -23,11 +23,7 @@ export default function TourPlaceDetailPage({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, [params.contentId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -48,7 +44,11 @@ export default function TourPlaceDetailPage({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.contentId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // 카테고리 이름 가져오기
   const getCategoryName = (contenttypeid?: string) => {

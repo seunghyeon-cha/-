@@ -1,6 +1,11 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
+
+// 타입 정의
+interface RetryableAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -31,7 +36,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError<{ message: string | string[] }>) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as RetryableAxiosRequestConfig;
 
     // 네트워크 에러
     if (!error.response) {

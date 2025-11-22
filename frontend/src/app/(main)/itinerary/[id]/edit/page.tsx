@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { getItineraryById, updateItinerary } from '@/lib/api/itinerary';
-import { Itinerary, ItineraryDay, ItineraryPlace } from '@/types/itinerary';
+import { Itinerary, ItineraryPlace } from '@/types/itinerary';
 import { toast } from '@/stores/toastStore';
 import { useAuthStore } from '@/stores/authStore';
 import DraggablePlaceList from '@/components/itinerary/DraggablePlaceList';
@@ -34,11 +35,7 @@ export default function EditItineraryPage({
   const [endDate, setEndDate] = useState('');
   const [isPublic, setIsPublic] = useState(false);
 
-  useEffect(() => {
-    fetchItinerary();
-  }, [params.id]);
-
-  const fetchItinerary = async () => {
+  const fetchItinerary = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await getItineraryById(params.id);
@@ -50,14 +47,18 @@ export default function EditItineraryPage({
       setStartDate(data.startDate);
       setEndDate(data.endDate);
       setIsPublic(data.isPublic);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to fetch itinerary:', error);
       toast.error('일정을 불러오는데 실패했습니다');
       router.push('/itinerary');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    fetchItinerary();
+  }, [fetchItinerary]);
 
   // 권한 체크
   if (!isLoading && itinerary && user?.id !== itinerary.userId) {
@@ -142,7 +143,7 @@ export default function EditItineraryPage({
         // 실제로는 장소 순서 변경 API가 필요하지만, Phase 6에서는 생략
       });
       toast.success('장소 순서가 변경되었습니다');
-    } catch (error) {
+    } catch {
       // 에러 시 롤백
       setItinerary(itinerary);
       toast.error('순서 변경에 실패했습니다');
@@ -211,9 +212,13 @@ export default function EditItineraryPage({
       });
       toast.success('일정이 저장되었습니다');
       router.push(`/itinerary/${params.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update itinerary:', error);
-      toast.error(error.response?.data?.message || '일정 수정에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '일정 수정에 실패했습니다');
+      } else {
+        toast.error('일정 수정에 실패했습니다');
+      }
     } finally {
       setIsSaving(false);
     }

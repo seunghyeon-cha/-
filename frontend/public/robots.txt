@@ -1,0 +1,12 @@
+# Smartrip robots.txt
+User-agent: *
+Allow: /
+
+# 크롤링 제외 경로
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /mypage/
+
+# Sitemap
+Sitemap: https://smartrip.com/sitemap.xml

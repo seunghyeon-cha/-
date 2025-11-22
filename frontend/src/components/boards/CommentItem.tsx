@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Comment } from '@/types/comment';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -46,12 +47,14 @@ const CommentItem = ({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             {/* 프로필 이미지 */}
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            <div className="relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
               {comment.user.profileImage ? (
-                <img
+                <Image
                   src={comment.user.profileImage}
                   alt={comment.user.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
                 />
               ) : (
                 <span className="text-gray-600 font-semibold">

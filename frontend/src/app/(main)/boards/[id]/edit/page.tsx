@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { AxiosError } from 'axios';
 import { getBoardById, updateBoard } from '@/lib/api/boards';
 import {
   BoardCategory,
   BOARD_CATEGORY_LABELS,
   UpdateBoardDto,
-  Board,
 } from '@/types/board';
 import { useAuthStore } from '@/stores/authStore';
 import RichTextEditor from '@/components/common/RichTextEditor';
@@ -17,9 +18,7 @@ import { toast } from '@/stores/toastStore';
 
 export default function EditBoardPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
-
-  const [board, setBoard] = useState<Board | null>(null);
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState<UpdateBoardDto>({
     category: 'FREE',
     title: '',
@@ -31,11 +30,7 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchBoard();
-  }, [params.id]);
-
-  const fetchBoard = async () => {
+  const fetchBoard = useCallback(async () => {
     try {
       setIsLoading(true);
       const boardData = await getBoardById(params.id);
@@ -47,7 +42,6 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
         return;
       }
 
-      setBoard(boardData);
       setFormData({
         category: boardData.category,
         title: boardData.title,
@@ -62,7 +56,11 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id, user, router]);
+
+  useEffect(() => {
+    fetchBoard();
+  }, [fetchBoard]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,9 +91,13 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
       await updateBoard(params.id, formData);
       toast.success('게시글이 수정되었습니다');
       router.push(`/boards/${params.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update board:', error);
-      toast.error(error.response?.data?.message || '게시글 수정에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '게시글 수정에 실패했습니다');
+      } else {
+        toast.error('게시글 수정에 실패했습니다');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -210,11 +212,13 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
             {formData.images && formData.images.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-4">
                 {formData.images.map((url, index) => (
-                  <div key={index} className="relative">
-                    <img
+                  <div key={index} className="relative w-full h-32">
+                    <Image
                       src={url}
                       alt={`Image ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg"
+                      fill
+                      className="object-cover rounded-lg"
+                      sizes="(max-width: 768px) 33vw, 25vw"
                     />
                     <button
                       type="button"
@@ -224,7 +228,7 @@ export default function EditBoardPage({ params }: { params: { id: string } }) {
                           images: formData.images?.filter((_, i) => i !== index),
                         })
                       }
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 z-10"
                     >
                       ×
                     </button>

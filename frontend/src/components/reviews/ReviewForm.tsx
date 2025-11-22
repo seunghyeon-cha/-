@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AxiosError } from 'axios';
 import { createReview } from '@/lib/api/reviews';
 import { toast } from '@/stores/toastStore';
 
@@ -44,9 +45,12 @@ const ReviewForm = ({
       toast.success('리뷰가 작성되었습니다');
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create review:', error);
       // API 인터셉터에서 이미 토스트 표시함
+      if (error instanceof AxiosError) {
+        // AxiosError는 이미 인터셉터에서 처리됨
+      }
     } finally {
       setIsSubmitting(false);
     }

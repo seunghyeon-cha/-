@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://yerimtour.com';
+  const baseUrl = 'https://smartrip.com';
   const currentDate = new Date();
 
   // 정적 페이지들

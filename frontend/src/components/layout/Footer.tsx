@@ -11,11 +11,10 @@ export default function Footer() {
           <div className="col-span-1">
             <Link href="/" className="flex items-center space-x-2 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500">
-                <span className="text-xl font-bold text-white">예</span>
+                <span className="text-xl font-bold text-white">S</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-primary-700">예림투어</span>
-                <span className="text-[10px] text-gray-500">YeRim Tour</span>
+                <span className="text-lg font-bold text-primary-700">Smartrip</span>
               </div>
             </Link>
             <p className="text-sm text-gray-600 mb-4">
@@ -145,10 +144,10 @@ export default function Footer() {
         <div className="mt-12 border-t border-gray-200 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-xs text-gray-500 text-center md:text-left">
-              <p>상호명: (주)예림투어 | 대표: 홍길동</p>
+              <p>상호명: (주)Smartrip | 대표: 홍길동</p>
               <p>사업자등록번호: 000-00-00000 | 통신판매업신고: 제2025-서울-00000호</p>
               <p>주소: 서울특별시 강남구 테헤란로 123</p>
-              <p className="mt-2">© {currentYear} YeRim Tour. All rights reserved.</p>
+              <p className="mt-2">© {currentYear} Smartrip. All rights reserved.</p>
             </div>
             <div className="flex items-center space-x-4">
               <button className="text-xs text-gray-600 hover:text-primary-600 transition-colors">

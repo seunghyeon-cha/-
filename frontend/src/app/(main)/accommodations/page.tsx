@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import PlaceCard from '@/components/places/PlaceCard';
 import TourPlaceCard from '@/components/places/TourPlaceCard';
 import Pagination from '@/components/common/Pagination';
 import KakaoMap from '@/components/map/KakaoMap';
-import { getPlaces, PlaceCategory, SortOption } from '@/lib/api/places';
+import { getPlaces, PlaceCategory, SortOption, Place } from '@/lib/api/places';
 import {
   getTourPlaces,
   extractTourItems,
   TourPlace,
-  AREA_CODES,
   CONTENT_TYPE_IDS,
 } from '@/lib/api/tour';
 
@@ -46,12 +45,11 @@ const KOREA_REGIONS = [
 
 export default function AccommodationsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<ViewMode>('internal');
   const [displayMode, setDisplayMode] = useState<DisplayMode>('list');
   const [sortOption, setSortOption] = useState<SortOption>('latest');
-  const [places, setPlaces] = useState<any[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
   const [tourPlaces, setTourPlaces] = useState<TourPlace[]>([]);
   const [meta, setMeta] = useState({
     total: 0,
@@ -65,7 +63,7 @@ export default function AccommodationsPage() {
   const [selectedRegion, setSelectedRegion] = useState('');
 
   // 내부 장소 목록 조회 (관광지만)
-  const fetchPlaces = async (
+  const fetchPlaces = useCallback(async (
     sort?: SortOption,
     page: number = 1,
   ) => {
@@ -86,7 +84,7 @@ export default function AccommodationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sortOption, debouncedSearchQuery, selectedRegion]);
 
   // Tour API 관광지 조회
   const fetchTourPlaces = async (areaCode: string = '1') => {
@@ -175,11 +173,14 @@ export default function AccommodationsPage() {
     if (viewMode === 'internal') {
       fetchPlaces(sortOption, 1);
     }
-  }, [debouncedSearchQuery, selectedRegion]);
+  }, [debouncedSearchQuery, selectedRegion, viewMode, sortOption, fetchPlaces]);
 
   // 초기 로드
   useEffect(() => {
-    fetchPlaces();
+    if (viewMode === 'internal') {
+      fetchPlaces();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -490,14 +491,14 @@ export default function AccommodationsPage() {
               // 지도 뷰
               <div className="h-[calc(100vh-280px)] min-h-[500px]">
                 <KakaoMap
-                  lat={places[0]?.latitude || 37.5665}
-                  lng={places[0]?.longitude || 126.9780}
+                  lat={places[0]?.lat ?? 37.5665}
+                  lng={places[0]?.lng ?? 126.9780}
                   name="숙소 목록"
                   places={places.map(place => ({
                     id: place.id,
                     name: place.name,
-                    latitude: place.latitude,
-                    longitude: place.longitude,
+                    latitude: place.lat,
+                    longitude: place.lng,
                     address: place.address
                   }))}
                   zoom={5}

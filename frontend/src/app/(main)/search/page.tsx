@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { getPlaces, Place } from '@/lib/api/places';
 import { getBoards } from '@/lib/api/boards';
 import { Board } from '@/types/board';
@@ -20,13 +21,7 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  useEffect(() => {
-    if (queryParam) {
-      handleSearch();
-    }
-  }, [queryParam]);
-
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchQuery.trim()) return;
 
@@ -65,7 +60,13 @@ export default function SearchPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, searchType, router]);
+
+  useEffect(() => {
+    if (queryParam) {
+      handleSearch();
+    }
+  }, [queryParam, handleSearch]);
 
   const totalResults = places.length + boards.length;
 
@@ -141,12 +142,12 @@ export default function SearchPage() {
               <h2 className="text-lg font-semibold text-gray-900">
                 {searchQuery ? (
                   <>
-                    '<span className="text-primary-600">{searchQuery}</span>' 검색
+                    {`'`}<span className="text-primary-600">{searchQuery}</span>{`'`} 검색
                     결과{' '}
                     <span className="text-gray-600">({totalResults}개)</span>
                   </>
                 ) : (
-                  '검색 결과'
+                  <>{`'검색 결과'`}</>
                 )}
               </h2>
             </div>
@@ -190,11 +191,15 @@ export default function SearchPage() {
                           className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                         >
                           {place.images && place.images.length > 0 && (
-                            <img
-                              src={place.images[0]}
-                              alt={place.name}
-                              className="w-full h-40 object-cover rounded-lg mb-3"
-                            />
+                            <div className="relative w-full h-40 mb-3">
+                              <Image
+                                src={place.images[0]}
+                                alt={place.name}
+                                fill
+                                className="object-cover rounded-lg"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              />
+                            </div>
                           )}
                           <h4 className="font-semibold text-gray-900 mb-1">
                             {place.name}
@@ -265,11 +270,15 @@ export default function SearchPage() {
                               </div>
                             </div>
                             {board.images && board.images.length > 0 && (
-                              <img
-                                src={board.images[0]}
-                                alt={board.title}
-                                className="w-20 h-20 rounded-lg object-cover ml-4"
-                              />
+                              <div className="relative w-20 h-20 ml-4 flex-shrink-0">
+                                <Image
+                                  src={board.images[0]}
+                                  alt={board.title}
+                                  fill
+                                  className="object-cover rounded-lg"
+                                  sizes="80px"
+                                />
+                              </div>
                             )}
                           </div>
                         </div>

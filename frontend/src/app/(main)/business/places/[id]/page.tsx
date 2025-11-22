@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getPlaceDetailStats } from '@/lib/api/business';
@@ -15,13 +15,7 @@ export default function PlaceDetailStatsPage() {
   const [stats, setStats] = useState<PlaceDetailStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (placeId) {
-      loadStats();
-    }
-  }, [placeId]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPlaceDetailStats(placeId);
@@ -32,7 +26,13 @@ export default function PlaceDetailStatsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [placeId]);
+
+  useEffect(() => {
+    if (placeId) {
+      loadStats();
+    }
+  }, [placeId, loadStats]);
 
   const renderStars = (rating: number) => {
     return (

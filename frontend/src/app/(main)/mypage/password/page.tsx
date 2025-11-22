@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { changePassword } from '@/lib/api/user';
 import { ChangePasswordDto } from '@/types/user';
 import { useAuthStore } from '@/stores/authStore';
@@ -74,9 +75,9 @@ export default function ChangePasswordPage() {
       });
       toast.success('비밀번호가 성공적으로 변경되었습니다');
       router.push('/mypage');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to change password:', error);
-      if (error?.response?.status === 401) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         setErrors({ currentPassword: '현재 비밀번호가 일치하지 않습니다' });
       } else {
         toast.error('비밀번호 변경에 실패했습니다');

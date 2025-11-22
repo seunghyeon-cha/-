@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getFestivals, searchFestivals, Festival, AREA_LABELS, AREA_CODES } from '@/lib/api/festivals';
+import { getFestivals, searchFestivals, Festival, AREA_CODES } from '@/lib/api/festivals';
 
 export default function FestivalsPage() {
   const router = useRouter();
@@ -203,7 +203,7 @@ export default function FestivalsPage() {
                 총 {totalCount.toLocaleString()}개의 축제
                 {searchKeyword && (
                   <span className="ml-1 text-primary-600">
-                    (검색: "{searchKeyword}")
+                    (검색: &quot;{searchKeyword}&quot;)
                   </span>
                 )}
               </span>

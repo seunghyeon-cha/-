@@ -58,19 +58,20 @@ export const testReview = {
 
 /**
  * 테스트용 URL 상수
+ * basePath를 고려한 경로
  */
 export const TEST_URLS = {
-  HOME: '/',
-  LOGIN: '/login',
-  SIGNUP: '/signup',
-  PLACES: '/places',
-  RESTAURANTS: '/restaurants',
-  ACCOMMODATIONS: '/accommodations',
-  FESTIVALS: '/festivals',
-  BOARDS: '/boards',
-  ITINERARY: '/itinerary',
-  MYPAGE: '/mypage',
-  SEARCH: '/search',
+  HOME: '/-/',
+  LOGIN: '/-/login',
+  SIGNUP: '/-/signup',
+  PLACES: '/-/places',
+  RESTAURANTS: '/-/restaurants',
+  ACCOMMODATIONS: '/-/accommodations',
+  FESTIVALS: '/-/festivals',
+  BOARDS: '/-/boards',
+  ITINERARY: '/-/itinerary',
+  MYPAGE: '/-/mypage',
+  SEARCH: '/-/search',
 };
 
 /**

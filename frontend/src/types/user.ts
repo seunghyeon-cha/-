@@ -1,3 +1,6 @@
+import type { Board } from './board';
+import type { Review } from '@/lib/api/reviews';
+
 // 사용자 프로필
 export interface UserProfile {
   id: string;
@@ -33,7 +36,7 @@ export interface ChangePasswordDto {
 
 // 게시글 목록 응답
 export interface BoardListResponse {
-  boards: any[]; // Board 타입 사용
+  boards: Board[];
   pagination: {
     page: number;
     limit: number;
@@ -44,7 +47,7 @@ export interface BoardListResponse {
 
 // 리뷰 목록 응답
 export interface ReviewListResponse {
-  reviews: any[]; // Review 타입 사용
+  reviews: Review[];
   pagination: {
     page: number;
     limit: number;

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import { createItinerary } from '@/lib/api/itinerary';
 import { toast } from '@/stores/toastStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -104,11 +105,13 @@ export default function NewItineraryPage() {
       const newItinerary = await createItinerary(data);
       toast.success('여행 일정이 성공적으로 생성되었습니다');
       router.push(`/itinerary/${newItinerary.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create itinerary:', error);
-      toast.error(
-        error.response?.data?.message || '일정 생성에 실패했습니다'
-      );
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '일정 생성에 실패했습니다');
+      } else {
+        toast.error('일정 생성에 실패했습니다');
+      }
     } finally {
       setIsSubmitting(false);
     }

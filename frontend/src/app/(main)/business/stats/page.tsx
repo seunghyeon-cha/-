@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { getBusinessStatsSummary, getPlaceStats } from '@/lib/api/business';
 import type { BusinessStatsSummary, PlaceStats } from '@/types/business';
 import { toast } from '@/stores/toastStore';
@@ -25,9 +26,13 @@ export default function BusinessStatsPage() {
       ]);
       setSummary(summaryData);
       setPlaceStats(placesData);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to fetch stats:', error);
-      toast.error('통계 조회에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '통계 조회에 실패했습니다');
+      } else {
+        toast.error('통계 조회에 실패했습니다');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { AxiosError } from 'axios';
 import {
   getMyPromotions,
   getPromotionsByPlace,
@@ -19,7 +20,6 @@ type PromotionStatus = 'all' | 'active' | 'scheduled' | 'ended';
 type ActiveFilter = 'all' | 'active' | 'inactive';
 
 export default function PromotionsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const urlPlaceId = searchParams.get('placeId');
 
@@ -40,25 +40,7 @@ export default function PromotionsPage() {
   });
   const [selectedPlaceForCreate, setSelectedPlaceForCreate] = useState<string>('');
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (urlPlaceId && urlPlaceId !== selectedPlaceId) {
-      setSelectedPlaceId(urlPlaceId);
-    }
-  }, [urlPlaceId]);
-
-  useEffect(() => {
-    if (selectedPlaceId !== 'all') {
-      loadPromotionsByPlace();
-    } else {
-      loadPromotions();
-    }
-  }, [selectedPlaceId]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [promotionsData, placesData] = await Promise.all([
@@ -73,9 +55,9 @@ export default function PromotionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadPromotions = async () => {
+  const loadPromotions = useCallback(async () => {
     try {
       const data = await getMyPromotions();
       setPromotions(data);
@@ -83,9 +65,9 @@ export default function PromotionsPage() {
       console.error('Failed to load promotions:', error);
       toast.error('프로모션 목록을 불러오는데 실패했습니다');
     }
-  };
+  }, []);
 
-  const loadPromotionsByPlace = async () => {
+  const loadPromotionsByPlace = useCallback(async () => {
     if (selectedPlaceId === 'all') return;
 
     try {
@@ -95,7 +77,25 @@ export default function PromotionsPage() {
       console.error('Failed to load place promotions:', error);
       toast.error('프로모션 목록을 불러오는데 실패했습니다');
     }
-  };
+  }, [selectedPlaceId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (urlPlaceId && urlPlaceId !== selectedPlaceId) {
+      setSelectedPlaceId(urlPlaceId);
+    }
+  }, [urlPlaceId, selectedPlaceId]);
+
+  useEffect(() => {
+    if (selectedPlaceId !== 'all') {
+      loadPromotionsByPlace();
+    } else {
+      loadPromotions();
+    }
+  }, [selectedPlaceId, loadPromotionsByPlace, loadPromotions]);
 
   const handleCreateClick = () => {
     setEditingPromotion(null);
@@ -152,9 +152,13 @@ export default function PromotionsPage() {
       } else {
         loadPromotions();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to save promotion:', error);
-      toast.error(error.response?.data?.message || '프로모션 저장에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '프로모션 저장에 실패했습니다');
+      } else {
+        toast.error('프로모션 저장에 실패했습니다');
+      }
     }
   };
 

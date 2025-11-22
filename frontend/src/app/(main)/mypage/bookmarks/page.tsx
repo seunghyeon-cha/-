@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getMyBookmarks, deleteBookmark } from '@/lib/api/bookmarks';
 import { Bookmark } from '@/lib/api/bookmarks';
 import { toast } from 'react-hot-toast';
@@ -13,11 +14,7 @@ export default function MyBookmarksPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadBookmarks();
-  }, [page]);
-
-  const loadBookmarks = async () => {
+  const loadBookmarks = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getMyBookmarks(page, 12); // 그리드 레이아웃용 12개
@@ -29,7 +26,11 @@ export default function MyBookmarksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    loadBookmarks();
+  }, [loadBookmarks]);
 
   const handleRemoveBookmark = async (id: string, placeName: string) => {
     if (!confirm(`"${placeName}" 북마크를 해제하시겠습니까?`)) {
@@ -131,10 +132,12 @@ export default function MyBookmarksPage() {
                 className="block relative h-48 bg-gray-200 overflow-hidden"
               >
                 {bookmark.place.images && bookmark.place.images[0] ? (
-                  <img
+                  <Image
                     src={bookmark.place.images[0]}
                     alt={bookmark.place.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">

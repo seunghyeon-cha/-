@@ -1,31 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import PlaceCard from '@/components/places/PlaceCard';
 import ReviewList from '@/components/reviews/ReviewList';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import KakaoMap from '@/components/map/KakaoMap';
-import { getPlace, getPlaces } from '@/lib/api/places';
+import { getPlace, getPlaces, Place } from '@/lib/api/places';
 import { checkBookmark, createBookmark, deleteBookmark } from '@/lib/api/bookmarks';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
 
 export default function PlaceDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
-  const [place, setPlace] = useState<any>(null);
-  const [recommendedPlaces, setRecommendedPlaces] = useState<any[]>([]);
+  const { isAuthenticated } = useAuthStore();
+  const [place, setPlace] = useState<Place | null>(null);
+  const [recommendedPlaces, setRecommendedPlaces] = useState<Place[]>([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkId, setBookmarkId] = useState<string | null>(null);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, [params.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -40,7 +37,7 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
       });
       // 현재 장소 제외
       setRecommendedPlaces(
-        recommended.data.filter((p: any) => p.id !== params.id),
+        recommended.data.filter((p) => p.id !== params.id),
       );
 
       // 북마크 상태 확인 (로그인한 경우만)
@@ -54,7 +51,11 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id, isAuthenticated]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleBookmark = async () => {
     if (!isAuthenticated) {
@@ -95,7 +96,7 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
     fetchData();
   };
 
-  const categoryConfig: any = {
+  const categoryConfig: Record<string, { label: string; color: string }> = {
     TOURIST: { label: '관광지', color: 'bg-primary-500' },
     RESTAURANT: { label: '맛집', color: 'bg-orange-500' },
     ACCOMMODATION: { label: '숙소', color: 'bg-purple-500' },
@@ -137,10 +138,13 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
       {/* 이미지 갤러리 */}
       <section className="relative w-full h-96 bg-gray-900">
         {place.images && place.images.length > 0 ? (
-          <img
+          <Image
             src={place.images[0]}
             alt={place.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -250,8 +254,8 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
           <div className="lg:col-span-1">
             <div className="sticky top-24 w-full h-96">
               <KakaoMap
-                lat={place.latitude || 37.5665}
-                lng={place.longitude || 126.9780}
+                lat={place.lat || 37.5665}
+                lng={place.lng || 126.9780}
                 name={place.name}
               />
             </div>

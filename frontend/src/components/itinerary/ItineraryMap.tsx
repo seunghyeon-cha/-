@@ -4,11 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ItineraryPlace } from '@/types/itinerary';
 import { filterPlacesWithCoords } from '@/lib/utils/mapUtils';
 
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
+// Kakao Maps 타입은 src/types/kakao.d.ts에서 전역으로 정의됨
 
 interface ItineraryMapProps {
   places: ItineraryPlace[];
@@ -26,16 +22,16 @@ export default function ItineraryMap({
   showRoute = true,
 }: ItineraryMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-  const polylineRef = useRef<any>(null);
+  const mapInstance = useRef<KakaoMap | null>(null);
+  const markersRef = useRef<KakaoCustomOverlay[]>([]);
+  const polylineRef = useRef<KakaoPolyline | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   // 카카오맵 로드 확인
   useEffect(() => {
     const checkKakaoMap = () => {
-      if (window.kakao && window.kakao.maps) {
-        window.kakao.maps.load(() => {
+      if (window.kakao && window.kakao!.maps!) {
+        window.kakao!.maps!.load(() => {
           setIsMapLoaded(true);
         });
       } else {
@@ -49,7 +45,7 @@ export default function ItineraryMap({
 
   // 지도 초기화
   useEffect(() => {
-    if (!isMapLoaded || !mapContainer.current) return;
+    if (!isMapLoaded || !mapContainer.current || !window.kakao!.maps!) return;
 
     const placesWithCoords = filterPlacesWithCoords(places);
 
@@ -57,9 +53,9 @@ export default function ItineraryMap({
 
     // 지도 생성
     const firstPlace = placesWithCoords[0].place!;
-    const initialPosition = new window.kakao.maps.LatLng(
-      firstPlace.latitude,
-      firstPlace.longitude
+    const initialPosition = new window.kakao!.maps!.LatLng(
+      firstPlace.latitude || 37.5665,
+      firstPlace.longitude || 126.9780
     );
 
     const mapOptions = {
@@ -67,12 +63,12 @@ export default function ItineraryMap({
       level: 7,
     };
 
-    const map = new window.kakao.maps.Map(mapContainer.current, mapOptions);
+    const map = new window.kakao!.maps!.Map(mapContainer.current, mapOptions);
     mapInstance.current = map;
 
     // 지도 컨트롤 추가
-    const zoomControl = new window.kakao.maps.ZoomControl();
-    map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
+    const zoomControl = new window.kakao!.maps!.ZoomControl();
+    map.addControl(zoomControl, window.kakao!.maps!.ControlPosition.RIGHT);
 
     return () => {
       // 클린업
@@ -80,11 +76,11 @@ export default function ItineraryMap({
         mapInstance.current = null;
       }
     };
-  }, [isMapLoaded, mapContainer]);
+  }, [isMapLoaded, places]);
 
   // 마커 및 경로 업데이트
   useEffect(() => {
-    if (!mapInstance.current) return;
+    if (!mapInstance.current || !window.kakao!.maps!) return;
 
     const map = mapInstance.current;
     const placesWithCoords = filterPlacesWithCoords(places);
@@ -101,12 +97,12 @@ export default function ItineraryMap({
 
     if (placesWithCoords.length === 0) return;
 
-    const bounds = new window.kakao.maps.LatLngBounds();
-    const positions: any[] = [];
+    const bounds = new window.kakao!.maps!.LatLngBounds();
+    const positions: KakaoLatLng[] = [];
 
     // 마커 생성
     placesWithCoords.forEach((place, index) => {
-      const position = new window.kakao.maps.LatLng(
+      const position = new window.kakao!.maps!.LatLng(
         place.place!.latitude!,
         place.place!.longitude!
       );
@@ -137,7 +133,7 @@ export default function ItineraryMap({
         </div>
       `;
 
-      const customOverlay = new window.kakao.maps.CustomOverlay({
+      const customOverlay = new window.kakao!.maps!.CustomOverlay({
         position,
         content,
         yAnchor: 0.5,
@@ -147,7 +143,7 @@ export default function ItineraryMap({
       markersRef.current.push(customOverlay);
 
       // 클릭 이벤트 (InfoWindow 표시)
-      const infowindow = new window.kakao.maps.InfoWindow({
+      const infowindow = new window.kakao!.maps!.InfoWindow({
         content: `
           <div style="padding: 10px; min-width: 150px;">
             <div style="font-weight: bold; margin-bottom: 5px;">
@@ -161,7 +157,7 @@ export default function ItineraryMap({
       });
 
       // 마커 클릭 이벤트
-      window.kakao.maps.event.addListener(
+      window.kakao!.maps!.event.addListener(
         customOverlay.a,
         'click',
         function () {
@@ -175,7 +171,7 @@ export default function ItineraryMap({
 
     // 경로 선 (Polyline) 생성
     if (showRoute && positions.length > 1) {
-      const polyline = new window.kakao.maps.Polyline({
+      const polyline = new window.kakao!.maps!.Polyline({
         path: positions,
         strokeWeight: 5,
         strokeColor: '#3B82F6',

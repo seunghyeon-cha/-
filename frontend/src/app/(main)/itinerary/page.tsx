@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getItineraries } from '@/lib/api/itinerary';
 import { Itinerary } from '@/types/itinerary';
@@ -20,7 +20,7 @@ export default function ItineraryPage() {
   const [sortOption, setSortOption] = useState<'latest' | 'oldest'>('latest');
 
   // 여행 일정 목록 조회
-  const fetchItineraries = async (
+  const fetchItineraries = useCallback(async (
     sort?: 'latest' | 'oldest',
     page: number = 1,
     search?: string
@@ -43,7 +43,7 @@ export default function ItineraryPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sortOption]);
 
   // 정렬 변경 시
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -77,7 +77,7 @@ export default function ItineraryPage() {
   // 초기 로드
   useEffect(() => {
     fetchItineraries();
-  }, []);
+  }, [fetchItineraries]);
 
   // 날짜 범위 포맷팅
   const formatDateRange = (startDate: string, endDate: string) => {

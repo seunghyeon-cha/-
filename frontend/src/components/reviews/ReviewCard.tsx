@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Review } from '@/lib/api/reviews';
 
 interface ReviewCardProps {
@@ -45,12 +46,14 @@ const ReviewCard = ({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* 프로필 이미지 */}
-          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+          <div className="relative w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
             {review.user.profileImage ? (
-              <img
+              <Image
                 src={review.user.profileImage}
                 alt={review.user.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="48px"
               />
             ) : (
               <span className="text-gray-600 font-semibold">
@@ -83,12 +86,15 @@ const ReviewCard = ({
       {review.images && review.images.length > 0 && (
         <div className="flex gap-2 mb-4">
           {review.images.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`리뷰 이미지 ${index + 1}`}
-              className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
-            />
+            <div key={index} className="relative w-24 h-24">
+              <Image
+                src={image}
+                alt={`리뷰 이미지 ${index + 1}`}
+                fill
+                className="object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                sizes="96px"
+              />
+            </div>
           ))}
         </div>
       )}

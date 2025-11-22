@@ -41,8 +41,6 @@ export default function NewPlacePage() {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<PlaceFormData>({
     resolver: zodResolver(placeSchema),
@@ -94,9 +92,13 @@ export default function NewPlacePage() {
       await createPlace(data);
       toast.success('장소가 성공적으로 등록되었습니다');
       router.push('/places');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create place:', error);
-      toast.error(error.response?.data?.message || '장소 등록에 실패했습니다');
+      const errorMessage =
+        error instanceof Error && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : '장소 등록에 실패했습니다';
+      toast.error(errorMessage || '장소 등록에 실패했습니다');
     } finally {
       setIsSubmitting(false);
     }

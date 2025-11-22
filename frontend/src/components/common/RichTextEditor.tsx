@@ -186,7 +186,7 @@ const RichTextEditor = ({
           }`}
           type="button"
         >
-          " 인용
+          &quot; 인용
         </button>
 
         <div className="w-px h-6 bg-gray-300 mx-1" />

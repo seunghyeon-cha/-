@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ReviewCard from './ReviewCard';
 import RatingDistribution from './RatingDistribution';
 import Pagination from '@/components/common/Pagination';
-import { getReviews, toggleReviewLike, deleteReview } from '@/lib/api/reviews';
+import { getReviews, toggleReviewLike, deleteReview, Review } from '@/lib/api/reviews';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
 
@@ -15,7 +15,7 @@ interface ReviewListProps {
 
 const ReviewList = ({ placeId, onWriteReview }: ReviewListProps) => {
   const { user } = useAuthStore();
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [meta, setMeta] = useState({
     total: 0,
     page: 1,
@@ -32,11 +32,7 @@ const ReviewList = ({ placeId, onWriteReview }: ReviewListProps) => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReviews(1);
-  }, [placeId]);
-
-  const fetchReviews = async (page: number) => {
+  const fetchReviews = useCallback(async (page: number) => {
     try {
       setIsLoading(true);
       const response = await getReviews(placeId, page, 10);
@@ -46,13 +42,13 @@ const ReviewList = ({ placeId, onWriteReview }: ReviewListProps) => {
       // 평균 평점 계산
       if (response.data.length > 0) {
         const avg =
-          response.data.reduce((sum: number, r: any) => sum + r.rating, 0) /
+          response.data.reduce((sum: number, r: Review) => sum + r.rating, 0) /
           response.data.length;
         setAverageRating(avg);
 
         // 평점 분포 계산 (현재 페이지 기준)
         const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-        response.data.forEach((review: any) => {
+        response.data.forEach((review: Review) => {
           if (review.rating >= 1 && review.rating <= 5) {
             distribution[review.rating as keyof typeof distribution]++;
           }
@@ -64,7 +60,11 @@ const ReviewList = ({ placeId, onWriteReview }: ReviewListProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [placeId]);
+
+  useEffect(() => {
+    fetchReviews(1);
+  }, [fetchReviews]);
 
   const handleLike = async (reviewId: string) => {
     try {

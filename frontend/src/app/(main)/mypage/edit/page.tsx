@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMyProfile, updateProfile } from '@/lib/api/user';
 import { UserProfile, UpdateProfileDto } from '@/types/user';
 import ProfileImageUpload from '@/components/user/ProfileImageUpload';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
+import { AxiosError } from 'axios';
 
 
 export default function EditProfilePage() {
@@ -22,15 +23,7 @@ export default function EditProfilePage() {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    loadProfile();
-  }, [isAuthenticated, router]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getMyProfile();
@@ -42,13 +35,21 @@ export default function EditProfilePage() {
       });
     } catch (error) {
       console.error('Failed to load profile:', error);
-      if ((error as any)?.response?.status === 401) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         router.push('/login');
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    loadProfile();
+  }, [isAuthenticated, router, loadProfile]);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -79,7 +80,11 @@ export default function EditProfilePage() {
       router.push('/mypage');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      toast.error('프로필 수정에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '프로필 수정 실패');
+      } else {
+        toast.error('프로필 수정 실패');
+      }
     } finally {
       setSaving(false);
     }

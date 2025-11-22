@@ -13,7 +13,7 @@ export default function Home() {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            예림투어와 함께하는 국내 여행
+            Smartrip와 함께하는 국내 여행
           </h2>
           <p className="text-lg text-gray-600">
             관광지, 맛집, 숙소 정보를 한눈에 확인하세요
@@ -160,10 +160,10 @@ export default function Home() {
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto p-6 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-sm text-gray-600 mb-2">
-            <span className="font-semibold text-primary-600">예림투어</span> 개발 현황
+            <span className="font-semibold text-primary-600">Smartrip</span> 개발 현황
           </p>
           <div className="text-xs text-gray-500 space-y-1">
-            <p>✅ 브랜드명 확정: 예림투어</p>
+            <p>✅ 브랜드명 확정: Smartrip</p>
             <p>✅ 스카이 블루 컬러 시스템 적용</p>
             <p>✅ Header & Footer 컴포넌트 완성</p>
             <p>✅ 메인 페이지 이미지 섹션 추가</p>

@@ -147,6 +147,7 @@ const ImageUpload = ({
           {selectedImages.map((image, index) => (
             <div key={index} className="relative group">
               <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.preview}
                   alt={`Preview ${index + 1}`}

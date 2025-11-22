@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getBoardById, toggleBoardLike, checkBoardLike, deleteBoard } from '@/lib/api/boards';
@@ -23,11 +23,7 @@ export default function BoardDetailPage({ params }: { params: { id: string } }) 
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, [params.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -49,7 +45,11 @@ export default function BoardDetailPage({ params }: { params: { id: string } }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id, isAuthenticated]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleLike = async () => {
     if (!isAuthenticated) {

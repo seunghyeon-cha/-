@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getMyReviews } from '@/lib/api/user';
 import { deleteReview } from '@/lib/api/reviews';
 import { Review } from '@/lib/api/reviews';
@@ -12,18 +12,13 @@ import Pagination from '@/components/common/Pagination';
 type SortType = 'latest' | 'popular';
 
 export default function MyReviewsPage() {
-  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<SortType>('latest');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadReviews();
-  }, [page, sortBy]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getMyReviews({
@@ -39,7 +34,11 @@ export default function MyReviewsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, sortBy]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('이 리뷰를 삭제하시겠습니까?')) {
@@ -170,12 +169,15 @@ export default function MyReviewsPage() {
                 {review.images && review.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {review.images.slice(0, 3).map((image, idx) => (
-                      <img
-                        key={idx}
-                        src={image}
-                        alt={`리뷰 이미지 ${idx + 1}`}
-                        className="w-full h-24 object-cover rounded"
-                      />
+                      <div key={idx} className="relative w-full h-24">
+                        <Image
+                          src={image}
+                          alt={`리뷰 이미지 ${idx + 1}`}
+                          fill
+                          className="object-cover rounded"
+                          sizes="(max-width: 768px) 33vw, 150px"
+                        />
+                      </div>
                     ))}
                   </div>
                 )}

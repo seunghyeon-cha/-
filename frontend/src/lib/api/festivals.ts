@@ -86,12 +86,70 @@ export async function searchFestivals(params: {
   }
 }
 
+// 축제 상세 정보 타입
+export interface FestivalDetail extends Festival {
+  overview?: string;
+  homepage?: string;
+  eventstartdate?: string;
+  eventenddate?: string;
+  playtime?: string;
+  eventplace?: string;
+  usetimefestival?: string;
+  zipcode?: string;
+  mlevel?: string;
+}
+
+// 축제 상세 정보 응답 타입
+export interface FestivalDetailResponse {
+  response: {
+    header: {
+      resultCode: string;
+      resultMsg: string;
+    };
+    body: {
+      items?: {
+        item: FestivalDetail[];
+      };
+      numOfRows?: number;
+      pageNo?: number;
+      totalCount?: number;
+    };
+  };
+}
+
+// 축제 이미지 응답 타입
+export interface FestivalImage {
+  contentid: string;
+  imgname?: string;
+  originimgurl: string;
+  serialnum?: string;
+  cpyrhtDivCd?: string;
+  smallimageurl?: string;
+}
+
+export interface FestivalImagesResponse {
+  response: {
+    header: {
+      resultCode: string;
+      resultMsg: string;
+    };
+    body: {
+      items?: {
+        item: FestivalImage[];
+      };
+      numOfRows?: number;
+      pageNo?: number;
+      totalCount?: number;
+    };
+  };
+}
+
 /**
  * 축제 상세 정보 조회
  */
-export async function getFestivalById(contentId: string): Promise<any> {
+export async function getFestivalById(contentId: string): Promise<FestivalDetailResponse> {
   try {
-    const response = await axios.get(`${API_URL}/api/tour/festivals/${contentId}`);
+    const response = await axios.get<FestivalDetailResponse>(`${API_URL}/api/tour/festivals/${contentId}`);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch festival detail:', error);
@@ -102,9 +160,9 @@ export async function getFestivalById(contentId: string): Promise<any> {
 /**
  * 축제 이미지 정보 조회
  */
-export async function getFestivalImages(contentId: string): Promise<any> {
+export async function getFestivalImages(contentId: string): Promise<FestivalImagesResponse> {
   try {
-    const response = await axios.get(`${API_URL}/api/tour/festivals/${contentId}/images`);
+    const response = await axios.get<FestivalImagesResponse>(`${API_URL}/api/tour/festivals/${contentId}/images`);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch festival images:', error);

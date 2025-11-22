@@ -1,9 +1,13 @@
 /** @type {import('next').NextConfig} */
+const isProduction = process.env.NODE_ENV === 'production';
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',  // GitHub Pages를 위한 정적 내보내기
-  basePath: '/-',
-  assetPrefix: '/-',
+  // GitHub Pages를 위한 설정 (프로덕션 빌드에서만 활성화)
+  ...(isProduction && {
+    output: 'export',  // GitHub Pages를 위한 정적 내보내기
+    basePath: '/-',
+    assetPrefix: '/-',
+  }),
   trailingSlash: true,
   images: {
     unoptimized: true, // 정적 내보내기 시 필수

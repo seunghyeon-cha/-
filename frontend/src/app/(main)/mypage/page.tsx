@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { getMyProfile } from '@/lib/api/user';
 import { UserProfile } from '@/types/user';
 import ProfileCard from '@/components/user/ProfileCard';
@@ -16,6 +17,22 @@ export default function MyPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getMyProfile();
+      setProfile(data);
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      // 인증 에러 시 로그인 페이지로
+      if (error instanceof AxiosError && error.response?.status === 401) {
+        router.push('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
   useEffect(() => {
     // 인증 확인
     if (!isAuthenticated) {
@@ -25,23 +42,7 @@ export default function MyPage() {
 
     // 프로필 데이터 로드
     loadProfile();
-  }, [isAuthenticated, router]);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      const data = await getMyProfile();
-      setProfile(data);
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      // 인증 에러 시 로그인 페이지로
-      if ((error as any)?.response?.status === 401) {
-        router.push('/login');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isAuthenticated, router, loadProfile]);
 
   if (loading) {
     return (

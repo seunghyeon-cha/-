@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { getItineraryById, deleteItinerary } from '@/lib/api/itinerary';
 import { Itinerary } from '@/types/itinerary';
 import { toast } from '@/stores/toastStore';
@@ -19,16 +20,12 @@ export default function ItineraryDetailPage({
   const [selectedDay, setSelectedDay] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchItinerary();
-  }, [params.id]);
-
-  const fetchItinerary = async () => {
+  const fetchItinerary = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await getItineraryById(params.id);
       setItinerary(data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to fetch itinerary:', error);
       toast.error('일정을 불러오는데 실패했습니다');
       // API가 없으면 목 데이터 표시
@@ -52,7 +49,11 @@ export default function ItineraryDetailPage({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchItinerary();
+  }, [fetchItinerary]);
 
   const handleEdit = () => {
     router.push(`/itinerary/${params.id}/edit`);
@@ -68,9 +69,13 @@ export default function ItineraryDetailPage({
       await deleteItinerary(params.id);
       toast.success('일정이 삭제되었습니다');
       router.push('/itinerary');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to delete itinerary:', error);
-      toast.error('일정 삭제에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '일정 삭제에 실패했습니다');
+      } else {
+        toast.error('일정 삭제에 실패했습니다');
+      }
     } finally {
       setIsDeleting(false);
     }

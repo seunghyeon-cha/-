@@ -1,14 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMyBoards, getMyReviews } from '@/lib/api/user';
 import { getMyBookmarks } from '@/lib/api/bookmarks';
+import { Review } from '@/lib/api/reviews';
+import { PlaceCategory } from '@/lib/api/places';
 import ReviewCard from '@/components/reviews/ReviewCard';
 import PlaceCard from '@/components/places/PlaceCard';
 import Pagination from '@/components/common/Pagination';
 import Link from 'next/link';
 
 type TabType = 'boards' | 'reviews' | 'bookmarks';
+
+interface Board {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  views?: number;
+  likesCount?: number;
+  _count?: {
+    comments?: number;
+  };
+}
+
+interface Bookmark {
+  id: string;
+  place: {
+    id: string;
+    name: string;
+    address: string;
+    category: PlaceCategory;
+    images?: string[];
+    averageRating?: number;
+    reviewCount?: number;
+  };
+}
 
 interface ActivityTabsProps {
   initialTab?: TabType;
@@ -21,21 +48,16 @@ export default function ActivityTabs({
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [boards, setBoards] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
 
   // 탭 변경 시 페이지 리셋
   useEffect(() => {
     setPage(1);
   }, [activeTab]);
 
-  // 데이터 로드
-  useEffect(() => {
-    loadData();
-  }, [activeTab, page]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === 'boards') {
@@ -44,7 +66,7 @@ export default function ActivityTabs({
         setTotalPages(response.pagination.totalPages);
       } else if (activeTab === 'reviews') {
         const response = await getMyReviews({ page, limit: 10 });
-        setReviews(response.reviews);
+        setReviews(response.reviews as Review[]);
         setTotalPages(response.pagination.totalPages);
       } else if (activeTab === 'bookmarks') {
         const response = await getMyBookmarks(page, 10);
@@ -56,7 +78,12 @@ export default function ActivityTabs({
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, page]);
+
+  // 데이터 로드
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const tabs = [
     { id: 'boards' as TabType, label: '내 게시글', icon: '📝' },

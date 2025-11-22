@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import PlaceCard from '@/components/places/PlaceCard';
 import TourPlaceCard from '@/components/places/TourPlaceCard';
 import Pagination from '@/components/common/Pagination';
 import KakaoMap from '@/components/map/KakaoMap';
-import { getPlaces, PlaceCategory, SortOption } from '@/lib/api/places';
+import { getPlaces, Place, PlaceCategory, SortOption } from '@/lib/api/places';
 import {
   getTourPlaces,
   extractTourItems,
   TourPlace,
-  AREA_CODES,
   CONTENT_TYPE_IDS,
 } from '@/lib/api/tour';
 
@@ -46,12 +45,11 @@ const KOREA_REGIONS = [
 
 export default function PlacesPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<ViewMode>('internal');
   const [displayMode, setDisplayMode] = useState<DisplayMode>('list');
   const [sortOption, setSortOption] = useState<SortOption>('latest');
-  const [places, setPlaces] = useState<any[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
   const [tourPlaces, setTourPlaces] = useState<TourPlace[]>([]);
   const [meta, setMeta] = useState({
     total: 0,
@@ -64,29 +62,29 @@ export default function PlacesPage() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
 
-  // 내부 장소 목록 조회 (관광지만)
-  const fetchPlaces = async (
-    sort?: SortOption,
-    page: number = 1,
-  ) => {
-    try {
-      setIsLoading(true);
-      const response = await getPlaces({
-        category: FIXED_CATEGORY, // 관광지 고정
-        sort: sort || sortOption,
-        page,
-        limit: 20,
-        search: debouncedSearchQuery || undefined,
-        region: selectedRegion || undefined,
-      });
-      setPlaces(response.data);
-      setMeta(response.meta);
-    } catch (error) {
-      console.error('Failed to fetch places:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 내部 장소 목록 조회 (관광지만)
+  const fetchPlaces = useCallback(
+    async (sort?: SortOption, page: number = 1) => {
+      try {
+        setIsLoading(true);
+        const response = await getPlaces({
+          category: FIXED_CATEGORY, // 관광지 고정
+          sort: sort || sortOption,
+          page,
+          limit: 20,
+          search: debouncedSearchQuery || undefined,
+          region: selectedRegion || undefined,
+        });
+        setPlaces(response.data);
+        setMeta(response.meta);
+      } catch (error) {
+        console.error('Failed to fetch places:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sortOption, debouncedSearchQuery, selectedRegion],
+  );
 
   // Tour API 관광지 조회
   const fetchTourPlaces = async (areaCode: string = '1') => {
@@ -175,12 +173,12 @@ export default function PlacesPage() {
     if (viewMode === 'internal') {
       fetchPlaces(sortOption, 1);
     }
-  }, [debouncedSearchQuery, selectedRegion]);
+  }, [debouncedSearchQuery, selectedRegion, viewMode, fetchPlaces, sortOption]);
 
   // 초기 로드
   useEffect(() => {
     fetchPlaces();
-  }, []);
+  }, [fetchPlaces]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -490,14 +488,14 @@ export default function PlacesPage() {
               // 지도 뷰
               <div className="h-[calc(100vh-280px)] min-h-[500px]">
                 <KakaoMap
-                  lat={places[0]?.latitude || 37.5665}
-                  lng={places[0]?.longitude || 126.9780}
+                  lat={places[0]?.lat || 37.5665}
+                  lng={places[0]?.lng || 126.9780}
                   name="장소 목록"
                   places={places.map(place => ({
                     id: place.id,
                     name: place.name,
-                    latitude: place.latitude,
-                    longitude: place.longitude,
+                    latitude: place.lat,
+                    longitude: place.lng,
                     address: place.address
                   }))}
                   zoom={5}

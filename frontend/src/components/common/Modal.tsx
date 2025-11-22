@@ -80,7 +80,6 @@ const Modal = ({
 
     const focusableElements = getFocusableElements();
     const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
 
     // 첫 번째 요소에 포커스
     if (firstElement) {

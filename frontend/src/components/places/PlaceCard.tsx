@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Card from '@/components/common/Card';
 
 type PlaceCategory = 'TOURIST' | 'RESTAURANT' | 'ACCOMMODATION';
@@ -67,10 +68,12 @@ const PlaceCard = ({
       {/* 썸네일 이미지 */}
       <div className="relative aspect-video bg-gray-200">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">

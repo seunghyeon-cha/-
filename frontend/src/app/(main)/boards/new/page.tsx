@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { AxiosError } from 'axios';
 import { createBoard } from '@/lib/api/boards';
 import {
   BoardCategory,
@@ -34,7 +36,7 @@ export default function NewBoardPage() {
       toast.error('로그인이 필요합니다');
       router.push('/login');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +67,13 @@ export default function NewBoardPage() {
       const board = await createBoard(formData);
       toast.success('게시글이 작성되었습니다');
       router.push(`/boards/${board.id}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create board:', error);
-      toast.error(error.response?.data?.message || '게시글 작성에 실패했습니다');
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || '게시글 작성에 실패했습니다');
+      } else {
+        toast.error('게시글 작성에 실패했습니다');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -211,11 +217,13 @@ export default function NewBoardPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {formData.images.map((url, index) => (
                     <div key={index} className="relative group">
-                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                        <img
+                      <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <Image
                           src={url}
                           alt={`Uploaded ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                         />
                       </div>
                       <button
@@ -226,7 +234,7 @@ export default function NewBoardPage() {
                             images: formData.images?.filter((_, i) => i !== index),
                           });
                         }}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                       >
                         ✕
                       </button>

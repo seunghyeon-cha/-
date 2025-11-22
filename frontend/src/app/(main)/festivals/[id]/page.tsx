@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { getFestivalById, getFestivalImages } from '@/lib/api/festivals';
@@ -41,13 +41,7 @@ export default function FestivalDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (contentId) {
-      fetchFestivalDetail();
-    }
-  }, [contentId]);
-
-  const fetchFestivalDetail = async () => {
+  const fetchFestivalDetail = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -73,7 +67,7 @@ export default function FestivalDetailPage() {
           const imageItems = imagesResponse.response.body.items?.item || [];
           setImages(imageItems);
         }
-      } catch (err) {
+      } catch {
         console.log('No additional images available');
       }
     } catch (error) {
@@ -82,7 +76,13 @@ export default function FestivalDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [contentId]);
+
+  useEffect(() => {
+    if (contentId) {
+      fetchFestivalDetail();
+    }
+  }, [contentId, fetchFestivalDetail]);
 
   const handleBack = () => {
     router.back();

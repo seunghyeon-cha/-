@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import Card from '@/components/common/Card';
@@ -93,12 +94,16 @@ export default function SignupPage() {
 
       // 메인 페이지로 이동
       router.push('/');
-    } catch (error: any) {
+    } catch (error) {
       // API 인터셉터에서 에러 토스트를 이미 표시함
-      setApiError(
-        error.response?.data?.message ||
-          '회원가입에 실패했습니다. 다시 시도해주세요.',
-      );
+      if (error instanceof AxiosError) {
+        setApiError(
+          error.response?.data?.message ||
+            '회원가입에 실패했습니다. 다시 시도해주세요.',
+        );
+      } else {
+        setApiError('회원가입에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally{
       setIsLoading(false);
     }
@@ -112,7 +117,7 @@ export default function SignupPage() {
           예
         </div>
         <h2 className="text-2xl font-bold text-primary-700 mb-2">
-          예림투어 회원가입
+          Smartrip 회원가입
         </h2>
         <p className="text-sm text-gray-600">함께 만드는 여행 이야기</p>
       </div>
@@ -129,7 +134,7 @@ export default function SignupPage() {
         <Input
           label="이메일 *"
           type="email"
-          placeholder="user@yerimtour.com"
+          placeholder="user@smartrip.com"
           fullWidth
           error={errors.email?.message}
           {...register('email')}

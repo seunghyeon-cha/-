@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getMyPlaces } from '@/lib/api/business';
 import type { MyPlace } from '@/types/business';
 import { toast } from '@/stores/toastStore';
 
 export default function BusinessPlacesPage() {
-  const router = useRouter();
   const [places, setPlaces] = useState<MyPlace[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -122,10 +121,13 @@ export default function BusinessPlacesPage() {
                 className="block relative h-48 bg-gray-200 overflow-hidden"
               >
                 {place.images && place.images[0] ? (
-                  <img
+                  <Image
                     src={place.images[0]}
                     alt={place.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={false}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">

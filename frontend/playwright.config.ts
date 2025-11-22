@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   // 테스트 디렉토리
-  testDir: './e2e',
+  testDir: './tests/e2e',
 
   // 각 테스트의 최대 실행 시간
   timeout: 30 * 1000,
@@ -32,6 +32,9 @@ export default defineConfig({
 
   // 모든 프로젝트에 공통으로 적용되는 설정
   use: {
+    // 기본 URL (개발 서버가 이미 실행 중이어야 함)
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+
     // 테스트 실패 시 추적 정보 수집
     trace: 'on-first-retry',
 
@@ -73,11 +76,6 @@ export default defineConfig({
     },
   ],
 
-  // 웹 서버 설정 (테스트 실행 전 자동으로 개발 서버 시작)
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // 웹 서버 설정 제거 - 수동으로 개발 서버를 시작해야 함
+  // 사용법: npm run dev를 먼저 실행한 후 테스트 실행
 });
