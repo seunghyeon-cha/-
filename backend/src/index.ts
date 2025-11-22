@@ -17,7 +17,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://-smartrip-cha-forntend.vercel.app'
+    'https://smartrip-cha-frontend-chacha4164s-projects.vercel.app'
   ],
   credentials: true
 }));
