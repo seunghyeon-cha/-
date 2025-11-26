@@ -37,8 +37,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Smartrip 백엔드 서버 정상 작동 중' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 백엔드 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 백엔드 서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
 
 export default app;
